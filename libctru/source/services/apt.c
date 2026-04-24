@@ -1514,3 +1514,39 @@ Result APT_ReceiveDeliverArg(void* param, size_t paramSize, void* hmac, u64* sen
 
 	return ret;
 }
+
+Result APT_PrepareToStartApplication(FS_ProgramInfo* programInfo, u8 launchFlags)
+{
+	// https://www.3dbrew.org/wiki/APT:PrepareToStartApplication
+
+	u32 cmdbuf[16];
+
+	cmdbuf[0]=0x00150140;
+	memcpy(&cmdbuf[1], programInfo, sizeof(FS_ProgramInfo));
+	cmdbuf[5] = launchFlags;
+
+	return aptSendCommand(cmdbuf);
+}
+
+Result APT_StartApplication(u32 parameterSize, u32 hmacSize, u32 paused, void* parameter, void* hmac)
+{
+	// https://www.3dbrew.org/wiki/APT:StartApplication
+
+	u32 cmdbuf[16];
+
+	cmdbuf[0]=0x001B00C4;
+	cmdbuf[1]=parameterSize;
+	cmdbuf[2]=hmacSize;
+	cmdbuf[3]=paused;
+
+	// I checked which static buffer ids the real homemenu is using when performing this calls
+	// 0x00 - For paramter
+	// 0x02 - For hmac
+	cmdbuf[4]=IPC_Desc_StaticBuffer(parameterSize,0x00);
+	cmdbuf[5]=(u32)parameter;
+
+	cmdbuf[6]=IPC_Desc_StaticBuffer(hmacSize,0x02);
+	cmdbuf[7]=(u32)hmac;
+
+	return aptSendCommand(cmdbuf);
+}

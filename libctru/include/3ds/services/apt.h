@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <3ds/services/fs.h>
+
 /**
  * @brief NS Application IDs.
  *
@@ -588,3 +590,20 @@ Result APT_GetSharedFont(Handle* fontHandle, u32* mapAddr);
  * @param received Pointer to output whether an argument was received to.
  */
 Result APT_ReceiveDeliverArg(void* param, size_t paramSize, void* hmac, u64* sender, bool* received);
+
+/**
+ * @brief Prepare APT to start a new application
+ * @param info Pointer that contains info about the application to start
+ * @param launchFlags Flags to launch the title with.
+ */
+Result APT_PrepareToStartApplication(FS_ProgramInfo* programInfo, u8 launchFlags);
+
+/**
+ * @brief Start a new application
+ * @param the size of paramter
+ * @param the size of hmac (usually 0x00)
+ * @param should start the application as paused
+ * @param parameter to pass to the newly started application
+ * @param IDK
+ */
+Result APT_StartApplication(u32 parameterSize, u32 hmacSize, u32 paused, void* parameter, void* hmac);
