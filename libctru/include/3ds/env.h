@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <3ds/services/apt.h>
+
 /// System run-flags.
 enum {
 	RUNFLAG_APTWORKAROUND = BIT(0), ///< Use APT workaround.
@@ -32,8 +34,12 @@ Handle envGetHandle(const char* name);
  * @return The APT app ID.
  */
 static inline u32 envGetAptAppId(void) {
-	extern u32 __apt_appid;
-	return __apt_appid;
+	// extern u32 __apt_appid;
+	// return __apt_appid;
+
+	// return APPID_APPLICATION;
+
+	return APPID_HOMEMENU;
 }
 
 /**
