@@ -203,7 +203,8 @@ Result aptInit(void)
 	if (aptIsCrippled()) return 0;
 
 	// Initialize APT
-	APT_AppletAttr attr = aptMakeAppletAttr(APTPOS_APP, false, false);
+	// APT_AppletAttr attr = aptMakeAppletAttr(APTPOS_APP, false, false);
+	APT_AppletAttr attr = 0x20000002;
 	ret = APT_Initialize(envGetAptAppId(), attr, &aptEvents[0], &aptEvents[1]);
 	if (R_FAILED(ret)) goto _fail2;
 

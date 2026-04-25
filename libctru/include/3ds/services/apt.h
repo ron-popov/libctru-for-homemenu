@@ -45,7 +45,7 @@ typedef enum {
 	APTPOS_RESIDENT = 4,  ///< Resident applet.
 } APT_AppletPos;
 
-typedef u8 APT_AppletAttr;
+typedef u32 APT_AppletAttr;
 
 struct PtmWakeEvents;
 
