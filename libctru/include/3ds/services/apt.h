@@ -608,5 +608,9 @@ Result APT_PrepareToStartApplication(FS_ProgramInfo* programInfo, u8 launchFlags
  */
 Result APT_StartApplication(u32 parameterSize, u32 hmacSize, u32 paused, void* parameter, void* hmac);
 
-
+/**
+ * @brief Wakes up the currently waiting application to be in the GFX forefront
+ * @brief The homemenu does this after calling apt:preparetostartapplication, apt:startapplication
+ * @brief and disabling it's GFX using gfxExit()
+ */
 Result APT_WakeupApplication(void);
