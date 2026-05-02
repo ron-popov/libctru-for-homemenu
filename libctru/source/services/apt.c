@@ -1551,3 +1551,15 @@ Result APT_StartApplication(u32 parameterSize, u32 hmacSize, u32 paused, void* p
 
 	return aptSendCommand(cmdbuf);
 }
+
+
+Result APT_WakeupApplication(void)
+{
+	// https://www.3dbrew.org/wiki/APT:WakeupApplication
+
+	u32 cmdbuf[16];
+
+	cmdbuf[0]=0x001C0000;
+
+	return aptSendCommand(cmdbuf);
+}

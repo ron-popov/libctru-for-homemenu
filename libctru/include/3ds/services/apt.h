@@ -607,3 +607,6 @@ Result APT_PrepareToStartApplication(FS_ProgramInfo* programInfo, u8 launchFlags
  * @param IDK
  */
 Result APT_StartApplication(u32 parameterSize, u32 hmacSize, u32 paused, void* parameter, void* hmac);
+
+
+Result APT_WakeupApplication(void);
