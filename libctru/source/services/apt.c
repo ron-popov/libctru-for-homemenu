@@ -631,6 +631,7 @@ void aptEventHandler(void *arg)
 	}
 }
 
+// Somehow this function is being called when signaling aptReceiveEvent
 static Result aptReceiveParameter(APT_Command* cmd, size_t* actualSize, Handle* handle)
 {
 	NS_APPID sender;
@@ -640,6 +641,7 @@ static Result aptReceiveParameter(APT_Command* cmd, size_t* actualSize, Handle* 
 	LightEvent_Wait(&aptReceiveEvent);
 	LightEvent_Clear(&aptReceiveEvent);
 	Result res = APT_ReceiveParameter(envGetAptAppId(), aptParameters, sizeof(aptParameters), &sender, cmd, actualSize, handle);
+	_aptDebug(8, *cmd);
 	if (R_SUCCEEDED(res) && *cmd == APTCMD_MESSAGE && aptMessageFunc)
 		aptMessageFunc(aptMessageFuncData, sender, aptParameters, *actualSize);
 	return res;
