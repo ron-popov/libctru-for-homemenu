@@ -114,7 +114,7 @@ debug:
 
 lib/libctru.a : lib release $(SOURCES) $(INCLUDES)
 	@$(MAKE) BUILD=release OUTPUT=$(CURDIR)/$@ \
-	BUILD_CFLAGS="-DNDEBUG=1 -O2 -fomit-frame-pointer" \
+	BUILD_CFLAGS="-DNDEBUG=1 -DLIBCTRU_APT_DEBUG=1 -O2 -fomit-frame-pointer" \
 	DEPSDIR=$(CURDIR)/release \
 	--no-print-directory -C release \
 	-f $(CURDIR)/Makefile
