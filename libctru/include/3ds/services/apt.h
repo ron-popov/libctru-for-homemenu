@@ -138,6 +138,8 @@ typedef struct tag_aptHookCookie
 /// APT message callback.
 typedef void (*aptMessageCb)(void* user, NS_APPID sender, void* msg, size_t msgsize);
 
+typedef void (*aptSignalCb)(APT_Signal signal);
+
 /// Initializes APT.
 Result aptInit(void);
 
@@ -219,6 +221,12 @@ void aptUnhook(aptHookCookie* cookie);
  * @param user User-defined data to be passed to the callback.
  */
 void aptSetMessageCallback(aptMessageCb callback, void* user);
+
+/**
+ * @brief Sets the function to be called when a Signal is received from APT
+ * @param callback Callback function.
+ */
+void aptSetSignalCallback(aptSignalCb callback);
 
 /**
  * @brief Launches a library applet.

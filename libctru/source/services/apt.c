@@ -20,6 +20,9 @@
 
 #define APT_HANDLER_STACKSIZE (0x1000)
 
+#define APT_EVENT_NOTIFICATION_INDEX 0
+#define APT_EVENT_RESUME_INDEX 1
+
 static int aptRefCount = 0;
 static Handle aptLockHandle;
 static Handle aptEvents[2];
@@ -29,6 +32,7 @@ static Thread aptEventHandlerThread;
 static bool aptEventHandlerThreadQuit;
 static aptHookCookie aptFirstHook;
 static aptMessageCb aptMessageFunc;
+static aptSignalCb aptSignalFunc;
 static void* aptMessageFuncData;
 
 enum
@@ -115,25 +119,8 @@ static bool aptIsCrippled(void)
 
 static Result aptGetServiceHandle(Handle* aptuHandle)
 {
-	static const char* serviceName;
-	static const char* const serviceNameTable[3] = {"APT:S", "APT:A", "APT:U"};
-
-	if (serviceName)
-		return srvGetServiceHandleDirect(aptuHandle, serviceName);
-
-	Result ret;
-	int i;
-	for (i = 0; i < 3; i ++)
-	{
-		ret = srvGetServiceHandleDirect(aptuHandle, serviceNameTable[i]);
-		if (R_SUCCEEDED(ret))
-		{
-			serviceName = serviceNameTable[i];
-			break;
-		}
-	}
-
-	return ret;
+	const char* serviceName = "APT:S";
+	return srvGetServiceHandleDirect(aptuHandle, serviceName);
 }
 
 static inline int countPrmWords(u32 hdr)
@@ -177,7 +164,7 @@ Result aptInit(void)
 	// Initialize APT
 	// APT_AppletAttr attr = aptMakeAppletAttr(APTPOS_APP, false, false);
 	APT_AppletAttr attr = 0x20000002;
-	ret = APT_Initialize(envGetAptAppId(), attr, &aptEvents[0], &aptEvents[1]);
+	ret = APT_Initialize(envGetAptAppId(), attr, &aptEvents[APT_EVENT_NOTIFICATION_INDEX], &aptEvents[APT_EVENT_RESUME_INDEX]);
 	if (R_FAILED(ret)) goto _fail2;
 
 	// Initialize light events
@@ -211,8 +198,8 @@ Result aptInit(void)
 	return 0;
 
 _fail3:
-	svcCloseHandle(aptEvents[0]);
-	svcCloseHandle(aptEvents[1]);
+	svcCloseHandle(aptEvents[APT_EVENT_NOTIFICATION_INDEX]);
+	svcCloseHandle(aptEvents[APT_EVENT_RESUME_INDEX]);
 _fail2:
 	svcCloseHandle(aptLockHandle);
 _fail:
@@ -320,7 +307,7 @@ void aptExit(void)
 		}
 
 		aptEventHandlerThreadQuit = true;
-		svcSignalEvent(aptEvents[0]);
+		svcSignalEvent(aptEvents[APT_EVENT_NOTIFICATION_INDEX]);
 		threadJoin(aptEventHandlerThread, U64_MAX);
 		int i;
 		for (i = 0; i < 2; i ++)
@@ -376,60 +363,35 @@ void aptEventHandler(void *arg)
 			continue;
 		}
 
-		_aptDebug(0x55, 3);
-
 		// This is done by official sw, even though APT events are oneshot...
 		svcClearEvent(aptEvents[id]);
 
-		_aptDebug(0x55, 4);
-
 		// Relay receive events to our light event
-		if (id == 1)
+		if (id == APT_EVENT_RESUME_INDEX)
 		{
-			_aptDebug(0x55, 5);
+			_aptDebug(0x55, 3);
 			NS_APPID sender;
 			APT_Command cmd;
 			Result res = APT_GlanceParameter(envGetAptAppId(), aptParameters, sizeof(aptParameters), &sender, &cmd, NULL, NULL);
 			if (R_FAILED(res))
 				continue; // Official sw panics here - we instead swallow the (non-)event.
 
-			_aptDebug(0x55, 6);
 			_aptDebug(2, cmd); _aptDebug(22, sender);
 
-			switch(cmd) {
-				case APTCMD_WAKEUP:
-					LightEvent_Signal(&aptReceiveEvent);
-					break;
-				default:
-					break;
-			}
+			LightEvent_Signal(&aptReceiveEvent);
 
-			// NOTE: Official software handles the following parameter types here:
-			//   - APTCMD_MESSAGE    (cancelled afterwards) (we handle it in aptReceiveParameter instead)
-			//   - APTCMD_REQUEST    (cancelled afterwards) (only sent to and handled by libapplets?)
-			//   - APTCMD_DSP_SLEEP  (*NOT* cancelled afterwards)
-			//   - APTCMD_DSP_WAKEUP (*NOT* cancelled afterwards)
+		} else if (id == APT_EVENT_NOTIFICATION_INDEX) {
+			_aptDebug(0x55, 4);
 
-			_aptDebug(0x55, 7);
+			APT_Signal signal;
+			Result res = APT_InquireNotification(envGetAptAppId(), &signal);
 
-			continue;
+			if (R_FAILED(res))
+				continue;
+
+			if (aptSignalFunc)
+				aptSignalFunc(signal);
 		}
-
-		_aptDebug(0x55, 8);
-
-		APT_Signal signal;
-		Result res = APT_InquireNotification(envGetAptAppId(), &signal);
-
-		_aptDebug(0x55, 9);
-
-		if (R_FAILED(res))
-			continue;
-
-		_aptDebug(0x55, 10);
-
-		_aptDebug(1, signal);
-
-		_aptDebug(0x55, 11);
 	}
 }
 
@@ -551,6 +513,11 @@ void aptSetMessageCallback(aptMessageCb callback, void* user)
 {
 	aptMessageFunc = callback;
 	aptMessageFuncData = user;
+}
+
+void aptSetSignalCallback(aptSignalCb callback)
+{
+	aptSignalFunc = callback;
 }
 
 Result APT_GetLockHandle(u16 flags, Handle* lockHandle)
