@@ -468,6 +468,8 @@ void aptHandleSleep(void)
 	if (!(aptFlags & FLAG_SHOULDSLEEP))
 		return;
 
+	_aptDebug(0x30, 1);
+
 	aptFlags = (aptFlags &~ FLAG_SHOULDSLEEP) | FLAG_SLEEPING;
 	aptCallHook(APTHOOK_ONSLEEP);
 	APT_ReplySleepNotificationComplete(envGetAptAppId());
@@ -518,6 +520,11 @@ void aptSetMessageCallback(aptMessageCb callback, void* user)
 void aptSetSignalCallback(aptSignalCb callback)
 {
 	aptSignalFunc = callback;
+}
+
+APT_Command aptHomemenuWaitForWakeup(void)
+{
+	return aptWaitForWakeUp(TR_ENABLE);
 }
 
 Result APT_GetLockHandle(u16 flags, Handle* lockHandle)
