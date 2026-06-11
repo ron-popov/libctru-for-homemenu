@@ -229,15 +229,6 @@ void aptSetMessageCallback(aptMessageCb callback, void* user);
 void aptSetSignalCallback(aptSignalCb callback);
 
 /**
- * @brief Used by the home menu to enter background after launching an application.
- * Calls APT_NotifyToWait so NS knows the home menu is waiting (enabling power button
- * wakeup routing), then blocks until a wakeup command is received.
- * @return The APT_Command that caused the wakeup (e.g. APTCMD_WAKEUP_EXIT,
- *         APTCMD_WAKEUP_POWERBUTTON).
- */
-APT_Command aptHomemenuWaitForWakeup(void);
-
-/**
  * @brief Launches a library applet.
  * @param appId ID of the applet to launch.
  * @param buf Input/output buffer that contains launch parameters on entry and result data on exit.

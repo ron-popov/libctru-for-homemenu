@@ -152,6 +152,8 @@ Result aptSendCommand(u32* aptcmdbuf)
 
 Result aptInit(void)
 {
+	_aptDebug(0x00, 0x00);
+
 	Result ret=0;
 
 	if (AtomicPostIncrement(&aptRefCount)) return 0;
@@ -414,18 +416,31 @@ static Result aptReceiveParameter(APT_Command* cmd, size_t* actualSize, Handle* 
 
 APT_Command aptWaitForWakeUp(APT_Transition transition)
 {
+	_aptDebug(0x40, 0x00);
 	APT_Command cmd;
 	APT_NotifyToWait(envGetAptAppId());
+	_aptDebug(0x40, 0x01);
 	aptFlags &= ~FLAG_ACTIVE;
-	if (transition != TR_ENABLE)
+	if (transition != TR_ENABLE) {
+		_aptDebug(0x40, 0x02);
 		APT_SleepIfShellClosed();
+	}
+
+	_aptDebug(0x40, 0x03);
+
 	for (;;)
 	{
+		_aptDebug(0x40, 0x04);
 		Result res = aptReceiveParameter(&cmd, NULL, NULL);
+		_aptDebug(0x41, cmd);
 		if (R_SUCCEEDED(res)
 			&& (cmd==APTCMD_WAKEUP || cmd==APTCMD_WAKEUP_PAUSE || cmd==APTCMD_WAKEUP_EXIT || cmd==APTCMD_WAKEUP_CANCEL
 			|| cmd==APTCMD_WAKEUP_CANCELALL || cmd==APTCMD_WAKEUP_POWERBUTTON || cmd==APTCMD_WAKEUP_JUMPTOHOME
-			|| cmd==APTCMD_WAKEUP_LAUNCHAPP)) break;
+			|| cmd==APTCMD_WAKEUP_LAUNCHAPP)) {
+				_aptDebug(0x40, 0x05);
+				break;
+		}	
+			
 	}
 	aptFlags |= FLAG_ACTIVE;
 
@@ -520,11 +535,6 @@ void aptSetMessageCallback(aptMessageCb callback, void* user)
 void aptSetSignalCallback(aptSignalCb callback)
 {
 	aptSignalFunc = callback;
-}
-
-APT_Command aptHomemenuWaitForWakeup(void)
-{
-	return aptWaitForWakeUp(TR_ENABLE);
 }
 
 Result APT_GetLockHandle(u16 flags, Handle* lockHandle)
