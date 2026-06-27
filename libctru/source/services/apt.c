@@ -414,6 +414,20 @@ static Result aptReceiveParameter(APT_Command* cmd, size_t* actualSize, Handle* 
 }
 
 
+APT_Command aptGetCommand()
+{
+  APT_Command cmd;
+  Result res = aptReceiveParameter(&cmd, NULL, NULL);
+
+  _aptDebug(0x41, cmd);
+
+  if (R_SUCCEEDED(res)) {
+	return cmd;
+  } else {
+    return APTCMD_NONE;
+  }
+}
+
 APT_Command aptWaitForWakeUp(APT_Transition transition)
 {
 	_aptDebug(0x40, 0x00);

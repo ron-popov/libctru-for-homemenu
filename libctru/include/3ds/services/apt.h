@@ -229,13 +229,15 @@ void aptSetMessageCallback(aptMessageCb callback, void* user);
 void aptSetSignalCallback(aptSignalCb callback);
 
 /**
- * @brief Launches a library applet.
- * @param appId ID of the applet to launch.
- * @param buf Input/output buffer that contains launch parameters on entry and result data on exit.
- * @param bufsize Size of the buffer.
- * @param handle Handle to pass to the library applet.
- */
-void aptLaunchLibraryApplet(NS_APPID appId, void* buf, size_t bufsize, Handle handle);
+	* @brief Launches a library applet.
+	* @param appId ID of the applet to launch.
+	* @param buf Input/output buffer that contains launch parameters on entry
+	* and result data on exit.
+	* @param bufsize Size of the buffer.
+	* @param handle Handle to pass to the library applet.
+	*/
+void aptLaunchLibraryApplet(NS_APPID appId, void *buf, size_t bufsize,
+							Handle handle);
 
 /**
  * @brief Launches a system applet.
@@ -622,3 +624,9 @@ Result APT_StartApplication(u32 parameterSize, u32 hmacSize, u32 paused, void* p
  * @brief and disabling it's GFX using gfxExit()
  */
 Result APT_WakeupApplication(void);
+
+/**
+ * @brief Checks if an apt command was sent to my app and return it if so
+ * @brief If no command was sent, APTCMD_NONE will be returned
+ */
+APT_Command aptGetCommand();
