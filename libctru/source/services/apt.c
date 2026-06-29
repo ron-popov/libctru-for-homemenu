@@ -73,19 +73,7 @@ static u8 aptChainloadHmac[0x20];
 static u8 aptChainloadMediatype;
 static u8 aptChainloadFlags;
 
-typedef enum
-{
-	TR_ENABLE     = 0x62,
-	TR_JUMPTOMENU = 0x0E,
-	TR_SYSAPPLET  = 0x05,
-	TR_LIBAPPLET  = 0x04,
-	TR_CANCELLIB  = 0x03,
-	TR_CLOSEAPP   = 0x09,
-	TR_APPJUMP    = 0x12,
-} APT_Transition;
-
 static void aptEventHandler(void *arg);
-static APT_Command aptWaitForWakeUp(APT_Transition transition);
 
 // The following function can be overridden in order to log APT signals and notifications for debugging purposes
 #ifdef LIBCTRU_APT_DEBUG
@@ -429,7 +417,7 @@ APT_Command aptGetCommand()
 }
 
 APT_Command aptWaitForWakeUp(APT_Transition transition)
-{
+{	
 	_aptDebug(0x40, 0x00);
 	APT_Command cmd;
 	APT_NotifyToWait(envGetAptAppId());

@@ -100,6 +100,17 @@ typedef enum {
 	APTCMD_WAKEUP_LAUNCHAPP   = 17, ///< Applet wakes up and is instructed to launch another applet (?).
 } APT_Command;
 
+/// APT wakeup transitions (used with \ref aptWaitForWakeUp).
+typedef enum {
+	TR_ENABLE     = 0x62, ///< Initial enable on startup.
+	TR_JUMPTOMENU = 0x0E, ///< Jumping to the HOME menu.
+	TR_SYSAPPLET  = 0x05, ///< Launching a system applet.
+	TR_LIBAPPLET  = 0x04, ///< Launching a library applet.
+	TR_CANCELLIB  = 0x03, ///< Cancelling a library applet.
+	TR_CLOSEAPP   = 0x09, ///< Closing the current application.
+	TR_APPJUMP    = 0x12, ///< Jumping to another application.
+} APT_Transition;
+
 /// APT capture buffer information.
 typedef struct
 {
@@ -200,6 +211,13 @@ static inline void aptHandleJumpToHome(void)
  * @return true if the application should keep running, false otherwise (see \ref aptShouldClose).
  */
 bool aptMainLoop(void);
+
+/**
+ * @brief Blocks until APT sends a wakeup command, handling GPU/DSP restore as appropriate.
+ * @param transition The APT transition type describing why we are suspending.
+ * @return The APT_Command that caused the wakeup.
+ */
+APT_Command aptWaitForWakeUp(APT_Transition transition);
 
 /**
  * @brief Sets up an APT status hook.
