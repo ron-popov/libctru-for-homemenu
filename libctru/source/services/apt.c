@@ -469,7 +469,7 @@ APT_Command aptWaitForWakeUp(APT_Transition transition)
 
 	if (cmd != APTCMD_WAKEUP_JUMPTOHOME)
 	{
-		APT_UnlockTransition(0x10);
+		APT_UnlockTransition(0);
 		APT_SleepIfShellClosed();
 	} else
 	{
@@ -767,7 +767,7 @@ Result APT_AppletUtility(int id, void* out, size_t outSize, const void* in, size
 	staticbufs[0]=saved_threadstorage[0];
 	staticbufs[1]=saved_threadstorage[1];
 
-	return R_SUCCEEDED(ret) ? cmdbuf[2] : ret;
+	return ret;
 }
 
 Result APT_SleepIfShellClosed(void)
@@ -790,7 +790,7 @@ Result APT_LockTransition(u32 transition, bool flag)
 
 Result APT_TryLockTransition(u32 transition, bool* succeeded)
 {
-	return APT_AppletUtility(6, &succeeded, sizeof(succeeded), &transition, sizeof(transition));
+	return APT_AppletUtility(6, succeeded, sizeof(*succeeded), &transition, sizeof(transition));
 }
 
 Result APT_UnlockTransition(u32 transition)
