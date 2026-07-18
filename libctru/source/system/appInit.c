@@ -5,6 +5,7 @@
 #include <3ds/services/apt.h>
 #include <3ds/services/fs.h>
 #include <3ds/services/hid.h>
+#include <3ds.h>
 
 void __attribute__((weak)) userAppInit(void);
 
@@ -13,9 +14,11 @@ void __attribute__((weak)) __appInit(void)
 	// Initialize services
 	srvInit();
 	aptInit();
-	hidInit();
+
+	// hidInit(); // This hangs if executed before sysmodules are launched
 
 	fsInit();
+
 	archiveMountSdmc();
 
 	if (&userAppInit) userAppInit();
